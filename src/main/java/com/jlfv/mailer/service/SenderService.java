@@ -1,19 +1,23 @@
-package com.jlfv.mailer.functions;
+package com.jlfv.mailer.service;
 
+import com.jlfv.mailer.dto.response.MailResponse;
 import com.jlfv.mailer.dto.resquest.MailRequest;
+import com.jlfv.mailer.util.ResponseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-public class EmailSender {
+@Service
+public class SenderService {
 
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public boolean send(MailRequest mailRequest) {
+    public MailResponse send(MailRequest mailRequest) {
 
         MimeMessage msg = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = null;
@@ -26,12 +30,14 @@ public class EmailSender {
             helper.setText(mailRequest.getMessage(), true);
 
             javaMailSender.send(msg);
-            return true;
+            return new MailResponse(ResponseConstants.send_ok, "email sent successfully", "", "");
 
         } catch (MessagingException e) {
+
             e.printStackTrace();
+            return new MailResponse(ResponseConstants.send_failed, "mail not sent", "", e.getMessage());
+
         }
 
-        return false;
     }
 }
